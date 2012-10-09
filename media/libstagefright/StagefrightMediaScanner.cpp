@@ -37,7 +37,7 @@ StagefrightMediaScanner::StagefrightMediaScanner() {}
 
 StagefrightMediaScanner::~StagefrightMediaScanner() {}
 
-static bool FileHasAcceptableExtension(const char *extension) {
+static short FileHasAcceptableExtension(const char *extension) {
     static const char *kValidExtensions[] = {
         ".mp3", ".mp4", ".m4a", ".3gp", ".3gpp", ".3g2", ".3gpp2",
         ".mpeg", ".ogg", ".mid", ".smf", ".imy", ".wma", ".aac",
@@ -48,16 +48,34 @@ static bool FileHasAcceptableExtension(const char *extension) {
         ".ec3"
 #endif
     };
-    static const size_t kNumValidExtensions =
+
+    static const char *kValidExtensionsAW[] = {
+       ".mkv", ".rmvb", ".rm", ".mov", ".flv", ".f4v", ".avi",
+       ".mp1", ".mp2", ".awb", ".oga", ".ape", ".ac3",
+       ".dts", ".omg", ".oma", ".midi", ".m4v", ".wmv", ".asf",
+       ".vob", ".pmp", ".m4r", ".ra", ".webm",
+       ".ts", ".m2ts"
+    };
+
+    static size_t kNumValidExtensions =
         sizeof(kValidExtensions) / sizeof(kValidExtensions[0]);
 
     for (size_t i = 0; i < kNumValidExtensions; ++i) {
         if (!strcasecmp(extension, kValidExtensions[i])) {
-            return true;
+            return 1;
         }
     }
 
-    return false;
+    kNumValidExtensions =
+        sizeof(kValidExtensionsAW) / sizeof(kValidExtensionsAW[0]);
+
+    for (size_t i = 0; i < kNumValidExtensions; ++i) {
+        if (!strcasecmp(extension, kValidExtensionsAW[i])) {
+            return 2;
+        }
+    }
+
+    return 0;
 }
 
 static MediaScanResult HandleMIDI(
@@ -124,12 +142,14 @@ MediaScanResult StagefrightMediaScanner::processFileInternal(
         const char *path, const char *mimeType,
         MediaScannerClient &client) {
     const char *extension = strrchr(path, '.');
+    short faccext_ret;
 
     if (!extension) {
         return MEDIA_SCAN_RESULT_SKIPPED;
     }
 
-    if (!FileHasAcceptableExtension(extension)) {
+    faccext_ret = FileHasAcceptableExtension(extension);
+    if (!faccext_ret) {
         return MEDIA_SCAN_RESULT_SKIPPED;
     }
 
@@ -145,10 +165,15 @@ MediaScanResult StagefrightMediaScanner::processFileInternal(
         return HandleMIDI(path, &client);
     }
 
+    status_t status;
     sp<MediaMetadataRetriever> mRetriever(new MediaMetadataRetriever);
 
+    if (faccext_ret == 2) { // allwinner media scanner
+    	status = mRetriever->setDataSource(path);
+        return MEDIA_SCAN_RESULT_OK;
+    }
+
     int fd = open(path, O_RDONLY | O_LARGEFILE);
-    status_t status;
     if (fd < 0) {
         // couldn't open it locally, maybe the media server can?
         status = mRetriever->setDataSource(path);

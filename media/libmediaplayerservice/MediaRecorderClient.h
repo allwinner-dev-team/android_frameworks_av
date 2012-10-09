@@ -56,7 +56,8 @@ public:
     virtual     status_t   release();
     virtual     status_t   dump(int fd, const Vector<String16>& args) const;
     virtual     sp<ISurfaceTexture> querySurfaceMediaSource();
-
+    virtual 	status_t queueBuffer(int index, int addr_y, int addr_c, int64_t timestamp);
+    virtual		sp<IMemory> getOneBsFrame(int mode);
 private:
     friend class           MediaPlayerService;  // for accessing private constructor
 

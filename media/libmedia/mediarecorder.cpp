@@ -362,7 +362,35 @@ sp<ISurfaceTexture> MediaRecorder::
     return mSurfaceMediaSource;
 }
 
+status_t MediaRecorder::queueBuffer(int index, int addr_y, int addr_c, int64_t timestamp)
+{
+	ALOGV("queueBuffer(%d)", index);
+	if(mMediaRecorder == NULL) {
+		ALOGE("media recorder is not initialized yet");
+		return INVALID_OPERATION;
+	}
 
+	status_t ret = mMediaRecorder->queueBuffer(index, addr_y, addr_c, timestamp);
+	if (OK != ret) {
+		ALOGV("setVideoEncoder failed: %d", ret);
+		mCurrentState = MEDIA_RECORDER_ERROR;
+		return ret;
+	}
+
+	return ret;
+}
+
+
+sp<IMemory> MediaRecorder::getOneBsFrame(int mode)
+{
+	ALOGV("(%d)", index);
+	if(mMediaRecorder == NULL) {
+		ALOGE("media recorder is not initialized yet");
+		return NULL;
+	}
+
+	return mMediaRecorder->getOneBsFrame(mode);
+}
 
 status_t MediaRecorder::setVideoFrameRate(int frames_per_second)
 {

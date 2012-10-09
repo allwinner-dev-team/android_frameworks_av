@@ -196,6 +196,10 @@ bool NuPlayerDriver::isPlaying() {
     return mState == PLAYING && !mAtEOS;
 }
 
+int NuPlayerDriver::getMeidaPlayerState() {
+    ALOGV("getMeidaPlayerState");
+    return PLAYER_STATE_SUSPEND;
+}
 status_t NuPlayerDriver::seekTo(int msec) {
     int64_t seekTimeUs = msec * 1000ll;
 

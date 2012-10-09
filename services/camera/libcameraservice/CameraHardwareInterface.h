@@ -682,6 +682,21 @@ private:
         return a->query(a, NATIVE_WINDOW_MIN_UNDEQUEUED_BUFFERS, count);
     }
 
+	// add interfaces
+	static int __perform(struct preview_stream_ops *w, int cmd0, int cmd1, int value)
+	{
+        ANativeWindow *a = anw(w);
+        return a->perform(a, cmd0, cmd1, value);
+	}
+
+	static int __set_buffers_geometryex(struct preview_stream_ops* w,
+                      int width, int height, int format, int screenid)
+    {
+        ANativeWindow *a = anw(w);
+        //return native_window_set_buffers_geometryex(a,
+        //                  width, height, format, screenid);
+        return OK;
+    }
     void initHalPreviewWindow()
     {
         mHalPreviewWindow.nw.cancel_buffer = __cancel_buffer;
@@ -697,6 +712,9 @@ private:
 
         mHalPreviewWindow.nw.get_min_undequeued_buffer_count =
                 __get_min_undequeued_buffer_count;
+		// add interfaces
+		mHalPreviewWindow.nw.perform = __perform;
+		mHalPreviewWindow.nw.set_buffers_geometryex = __set_buffers_geometryex;
     }
 
     sp<ANativeWindow>        mPreviewWindow;

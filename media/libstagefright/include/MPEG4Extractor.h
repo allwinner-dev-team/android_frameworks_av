@@ -58,6 +58,7 @@ private:
 
     sp<DataSource> mDataSource;
     status_t mInitCheck;
+    bool mIsQtff;
     bool mHasVideo;
 
     Track *mFirstTrack, *mLastTrack;
